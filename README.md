@@ -1,4 +1,4 @@
 # StudyCenterAutomation
-denize girdim göttten 9 kere
+ismaili girdim göttten 9 kere
 dur
 10 oldu
