@@ -1,6 +1,5 @@
 package Model;
 
 public class User {
-	public int deniz;
-
+	public int deniz; //intleijden yazıyom;
 }
