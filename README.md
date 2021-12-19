@@ -1,3 +1,4 @@
 # StudyCenterAutomation
 
 ne yapıyonuzzz
+laaaaaaaaaaaaaaaaa
