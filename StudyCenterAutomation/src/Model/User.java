@@ -1,6 +1,6 @@
 package Model;
 
 public class User {
-	public int a;
+	public int deniz;
 
 }
