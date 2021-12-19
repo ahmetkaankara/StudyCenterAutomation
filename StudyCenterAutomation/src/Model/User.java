@@ -1,5 +1,7 @@
 package Model;
 
 public class User {
-	public int deniz; //intleijden yazıyom;
+	public int deniz;
+	public String iso = "denem";
+	//intleijden yazıyom;
 }
