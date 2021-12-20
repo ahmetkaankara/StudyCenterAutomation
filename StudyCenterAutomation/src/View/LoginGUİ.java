@@ -215,7 +215,9 @@ public class LoginGUİ extends JFrame {
 								admin.setTc_no(rs.getString("tc_no"));
 								admin.setPassword(rs.getString("password"));
 								admin.setType(rs.getString("type"));
-								System.out.println(admin.getName()+admin.getType());
+								AdminGUI aGUI = new AdminGUI(admin);
+								aGUI.setVisible(true);
+								dispose();
 
 							}
 						}

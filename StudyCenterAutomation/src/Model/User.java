@@ -1,8 +1,11 @@
 package Model;
+import Helper.DBConnection;
 
 public class User {
 	private int user_id;
 	private String name,tc_no,password,type;
+	
+	DBConnection conn = new DBConnection();
 	
 	
 	
