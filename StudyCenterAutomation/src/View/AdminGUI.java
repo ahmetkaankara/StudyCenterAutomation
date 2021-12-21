@@ -42,6 +42,13 @@ public class AdminGUI extends JFrame {
 	private JTable table_teacher;
 	private DefaultTableModel teacherModel = null;
 	private Object[] teacherData = null;
+	private JTable table_student;
+	private JTextField fld_sName;
+	private JTextField fld_sTcno;
+	private JTextField fld_sPass;
+	private JTextField fld_studentID;
+	private DefaultTableModel studentModel = null;
+	private Object[] studentData = null;
 
 	/**
 	 * Launch the application.
@@ -83,6 +90,27 @@ public class AdminGUI extends JFrame {
 			
 			teacherModel.addRow(teacherData);
 		}
+		
+		
+		studentModel = new DefaultTableModel();
+		Object[] colStudentName = new Object[4];
+		colStudentName[0] = "ID";
+		colStudentName[1] = "Ad Soyad";
+		colStudentName[2] = "TC NO";
+		colStudentName[3] = "Şifre";
+		
+		studentModel.setColumnIdentifiers(colStudentName);
+		studentData = new Object[4];
+		
+		for(int i = 0; i < admin.getStudentList().size(); i++) {
+			studentData[0] = admin.getStudentList().get(i).getUser_id();
+			studentData[1] = admin.getStudentList().get(i).getName();
+			studentData[2] = admin.getStudentList().get(i).getTc_no();
+			studentData[3] = admin.getStudentList().get(i).getPassword();
+			
+			studentModel.addRow(studentData);
+		}
+		
 		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -252,6 +280,143 @@ public class AdminGUI extends JFrame {
 		w_tab.addTab("Öğrenci Yönetimi", null, w_student, null);
 		w_student.setLayout(null);
 		
+		JScrollPane w_scrollStudent = new JScrollPane();
+		w_scrollStudent.setBounds(6, 6, 705, 379);
+		w_student.add(w_scrollStudent);
+		
+		table_student = new JTable(studentModel);
+		w_scrollStudent.setViewportView(table_student);
+		table_student.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				try {
+				fld_studentID.setText(table_student.getValueAt(table_student.getSelectedRow(), 0).toString());
+				}
+				catch(Exception ex) {
+					
+				}
+			}
+			
+		});
+		table_student.getModel().addTableModelListener(new TableModelListener() {
+
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if(e.getType()== TableModelEvent.UPDATE) {
+					int selectID = Integer.parseInt(table_student.getValueAt(table_student.getSelectedRow(), 0).toString());
+					String selectName = table_student.getValueAt(table_student.getSelectedRow(), 1).toString();
+					String selectTcno = table_student.getValueAt(table_student.getSelectedRow(), 2).toString();
+					String selectPass = table_student.getValueAt(table_student.getSelectedRow(), 3).toString();
+					
+					try {
+						boolean control = admin.updateStudent(selectID, selectName, selectTcno, selectPass);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+					
+				}
+				
+			}
+			
+		});
+		
+		JLabel lblNewLabel_2 = new JLabel("Ad Soyad");
+		lblNewLabel_2.setBounds(723, 22, 61, 16);
+		w_student.add(lblNewLabel_2);
+		
+		JLabel lblNewLabel_2_1 = new JLabel("TC Numarası");
+		lblNewLabel_2_1.setBounds(723, 84, 105, 16);
+		w_student.add(lblNewLabel_2_1);
+		
+		JLabel lblNewLabel_2_2 = new JLabel("Şifre");
+		lblNewLabel_2_2.setBounds(723, 139, 61, 16);
+		w_student.add(lblNewLabel_2_2);
+		
+		JButton btn_sCreate = new JButton("Kayıt Et");
+		btn_sCreate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_sName.getText().length()==0||fld_sTcno.getText().length()==0||fld_sPass.getText().length() == 0) {
+					Helper.showMsg("fill");
+					
+				}
+				else {
+					try {
+						boolean control = admin.addStudent(fld_sName.getText(), fld_sTcno.getText(), fld_sPass.getText());
+						if(control) {
+							Helper.showMsg("success");
+							fld_tName.setText(null);
+							fld_tTcno.setText(null);
+							fld_tPass.setText(null);								
+							updateStudentModel();
+						}
+					} catch (SQLException e1) {
+							e1.printStackTrace();
+					}
+				}
+					
+			}
+		});
+		btn_sCreate.setBounds(723, 219, 117, 29);
+		w_student.add(btn_sCreate);
+		
+		JButton btn_sDelete = new JButton("Sil");
+		btn_sDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_studentID.getText().length()==0) {
+					Helper.showMsg("Lütfen Bir Öğrenci Seçiniz");
+				}
+				else {
+					
+					if(Helper.confirm("sure")) {
+						int selectID = Integer.parseInt(fld_studentID.getText());
+						boolean control;
+						try {
+							control = admin.deleteStudent(selectID);
+							if(control) {
+								Helper.showMsg("success");
+								fld_studentID.setText(null);
+								updateStudentModel();
+								
+								
+							}
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+					}
+
+
+				}
+			}
+		});
+		btn_sDelete.setBounds(723, 332, 117, 29);
+		w_student.add(btn_sDelete);
+		
+		fld_sName = new JTextField();
+		fld_sName.setBounds(723, 46, 130, 26);
+		w_student.add(fld_sName);
+		fld_sName.setColumns(10);
+		
+		fld_sTcno = new JTextField();
+		fld_sTcno.setColumns(10);
+		fld_sTcno.setBounds(723, 101, 130, 26);
+		w_student.add(fld_sTcno);
+		
+		fld_sPass = new JTextField();
+		fld_sPass.setColumns(10);
+		fld_sPass.setBounds(723, 159, 130, 26);
+		w_student.add(fld_sPass);
+		
+		JLabel lblNewLabel_2_2_1 = new JLabel("Kullanıcı ID");
+		lblNewLabel_2_2_1.setBounds(723, 273, 72, 16);
+		w_student.add(lblNewLabel_2_2_1);
+		
+		fld_studentID = new JTextField();
+		fld_studentID.setColumns(10);
+		fld_studentID.setBounds(723, 294, 130, 26);
+		w_student.add(fld_studentID);
+		
 		JPanel w_studentExam = new JPanel();
 		w_tab.addTab("Öğrenci Deneme Sınavı Yönetimi", null, w_studentExam, null);
 	}
@@ -269,5 +434,17 @@ public class AdminGUI extends JFrame {
 		}
 		
 	}
-	
+	public void updateStudentModel() throws SQLException {
+		DefaultTableModel clearModel = (DefaultTableModel) table_student.getModel();
+		clearModel.setRowCount(0);
+		for(int i = 0; i < admin.getStudentList().size(); i++) {
+			studentData[0] = admin.getStudentList().get(i).getUser_id();
+			studentData[1] = admin.getStudentList().get(i).getName();
+			studentData[2] = admin.getStudentList().get(i).getTc_no();
+			studentData[3] = admin.getStudentList().get(i).getPassword();
+			
+			studentModel.addRow(studentData);
+		}
+		
+	}
 }
