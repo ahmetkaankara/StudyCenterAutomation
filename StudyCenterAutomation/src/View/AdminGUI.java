@@ -12,7 +12,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
-import Model.Admin;
+import Model.*;
 import Model.Teacher;
 import Model.Student;
 
@@ -34,6 +34,7 @@ import Helper.*;
 public class AdminGUI extends JFrame {
 	
 	static Admin admin = new Admin();
+	Lessons lesson = new Lessons();
 	private JPanel w_pane;
 	private JTextField fld_tName;
 	private JTextField fld_tTcno;
@@ -49,6 +50,10 @@ public class AdminGUI extends JFrame {
 	private JTextField fld_studentID;
 	private DefaultTableModel studentModel = null;
 	private Object[] studentData = null;
+	private JTable table_lessons;
+	private JTextField fld_lesson;
+	private DefaultTableModel lessonModel = null;
+	private Object[] lessonData = null;
 
 	/**
 	 * Launch the application.
@@ -110,6 +115,19 @@ public class AdminGUI extends JFrame {
 			
 			studentModel.addRow(studentData);
 		}
+		//LessonsModel
+				lessonModel = new DefaultTableModel();
+				Object[] colLessons = new Object[2];
+				colLessons[0] = "ID";
+				colLessons[1]= "Ders adı";
+				lessonModel.setColumnIdentifiers(colLessons);
+				lessonData = new Object[2];
+				for(int i=0; i< lesson.getList().size();i++) {
+					lessonData[0] = lesson.getList().get(i).getLessons_id();
+					lessonData[1]= lesson.getList().get(i).getName();
+					lessonModel.addRow(lessonData);		
+					}
+
 		
 		
 		setResizable(false);
@@ -417,6 +435,54 @@ public class AdminGUI extends JFrame {
 		fld_studentID.setBounds(723, 294, 130, 26);
 		w_student.add(fld_studentID);
 		
+		JPanel w_lessons = new JPanel();
+		w_lessons.setBackground(Color.WHITE);
+		w_tab.addTab("Öğretmen Ders Ekleme", null, w_lessons, null);
+		w_lessons.setLayout(null);
+		
+		JScrollPane w_scrollLessons = new JScrollPane();
+		w_scrollLessons.setBounds(10, 11, 350, 387);
+		w_lessons.add(w_scrollLessons);
+		table_lessons = new JTable(lessonModel);
+		w_scrollLessons.setViewportView(table_lessons);
+		
+		JLabel lblNewLabel_1_4 = new JLabel("Dersler");
+		lblNewLabel_1_4.setBounds(382, 11, 115, 16);
+		w_lessons.add(lblNewLabel_1_4);
+		
+		fld_lesson = new JTextField();
+		fld_lesson.setBounds(382, 37, 130, 26);
+		fld_lesson.setColumns(10);
+		w_lessons.add(fld_lesson);
+		
+		JButton btn_addLessons = new JButton("Kayıt Et");
+		btn_addLessons.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_lesson.getText().length()==0) {
+					Helper.showMsg("fill");
+				}
+				else {
+					try {
+						boolean control= lesson.addLesson(fld_lesson.getText());
+						if(control) {
+							Helper.showMsg("success");
+							fld_lesson.setText(null);
+							updateLessonModel();
+						}
+					}catch(SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
+		btn_addLessons.setBounds(382, 74, 117, 29);
+		w_lessons.add(btn_addLessons);
+		
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(522, 11, 351, 387);
+		w_lessons.add(scrollPane);
+		
 		JPanel w_studentExam = new JPanel();
 		w_tab.addTab("Öğrenci Deneme Sınavı Yönetimi", null, w_studentExam, null);
 	}
@@ -447,4 +513,14 @@ public class AdminGUI extends JFrame {
 		}
 		
 	}
+	public void updateLessonModel() throws SQLException{
+	DefaultTableModel clearModel = (DefaultTableModel) table_lessons.getModel();
+	clearModel.setRowCount(0);
+	for(int i=0; i< lesson.getList().size();i++) {
+		lessonData[0] = lesson.getList().get(i).getLessons_id();
+		lessonData[1]= lesson.getList().get(i).getName();
+		lessonModel.addRow(lessonData);		
+		}}
+	
+	
 }
