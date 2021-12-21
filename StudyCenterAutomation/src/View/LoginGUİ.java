@@ -106,7 +106,10 @@ public class LoginGUİ extends JFrame {
 								student.setTc_no(rs.getString("tc_no"));
 								student.setPassword(rs.getString("password"));
 								student.setType(rs.getString("type"));
-								System.out.println(student.getName()+student.getType());
+								StudentGUİ sGUİ = new StudentGUİ(student);
+								sGUİ.setVisible(true);
+								dispose();
+							
 							}
 						}
 					} catch (SQLException e1) {
