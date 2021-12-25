@@ -13,21 +13,36 @@ import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import com.toedter.calendar.JDateChooser;
+
+import Helper.Helper;
+
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.table.TableModel;
 
 public class TeacherGUI extends JFrame {
 
 	static Teacher teacher = new Teacher();
+	
 	private JPanel contentPane;
+	
 	private JTable w_studentTable;
 	private JTable table_student;
 	private DefaultTableModel studentModel = null;
 	private Object[] studentData = null;
 	
+	private JTable table_etut;
+	private DefaultTableModel etutModel;
+	private Object[] etutData = null;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -63,6 +78,17 @@ public class TeacherGUI extends JFrame {
 			studentModel.addRow(studentData);
 		}
 		
+		etutModel = new DefaultTableModel();
+		Object[] colEtutDate = new Object[1];
+		colEtutDate[0] = "Tarih";
+		etutModel.setColumnIdentifiers(colEtutDate);
+		etutData = new Object[1];
+		for(int i = 0; i<teacher.getEtutList().size();i++) {
+			etutData[0] = teacher.getEtutList().get(i).getWdate();
+			etutModel.addRow(etutData);
+					
+		}
+		
 		
 		setTitle("Teacher");
 		setResizable(false);
@@ -81,11 +107,11 @@ public class TeacherGUI extends JFrame {
 		
 		JButton btnNewButton = new JButton("Çıkış Yap");
 		btnNewButton.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
-		btnNewButton.setBounds(754, 23, 120, 30);
+		btnNewButton.setBounds(750, 25, 120, 30);
 		contentPane.add(btnNewButton);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(10, 60, 866, 450);
+		tabbedPane.setBounds(10, 60, 870, 450);
 		contentPane.add(tabbedPane);
 		
 		JPanel w_studentpane = new JPanel();
@@ -94,27 +120,79 @@ public class TeacherGUI extends JFrame {
 		w_studentpane.setLayout(null);
 		
 		JScrollPane w_scrollStudent = new JScrollPane();
-		w_scrollStudent.setBounds(0, 0, 695, 413);
+		w_scrollStudent.setBounds(0, 0, 700, 410);
 		w_studentpane.add(w_scrollStudent);
 		
 		table_student = new JTable(studentModel);
+		table_student.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
 		table_student.setBackground(Color.WHITE);
 		w_scrollStudent.setViewportView(table_student);
 		
 		JPanel w_etutpane = new JPanel();
-		w_etutpane.setBackground(Color.WHITE);
-		tabbedPane.addTab("Etütler", null, w_etutpane, null);
 		w_etutpane.setLayout(null);
+		w_etutpane.setBackground(Color.WHITE);
+		tabbedPane.addTab("Etüt", null, w_etutpane, null);
 		
-		JScrollPane w_scrollEtut = new JScrollPane();
-		w_scrollEtut.setBounds(10, 10, 736, 423);
-		w_etutpane.add(w_scrollEtut);
+		JDateChooser select_date = new JDateChooser();
+		select_date.getCalendarButton().setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
+		select_date.setBounds(10, 10, 130, 30);
+		w_etutpane.add(select_date);
 		
+		JComboBox select_time = new JComboBox();
+		select_time.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
+		select_time.setModel(new DefaultComboBoxModel(new String[] {"10:00", "13:00", "15:00", "17:00", "19:00"}));
+		select_time.setBounds(161, 10, 80, 30);
+		w_etutpane.add(select_time);
 		
+		JButton btn_etutekle = new JButton("Ekle");
+		btn_etutekle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				String date = "";
+				try {
+					date = sdf.format(select_date.getDate());	
+				} catch (Exception e2) {
+					
+				}
+				if(date.length() == 0) {
+					Helper.showMsg("Lütfen Geçerli Bir Tarih Giriniz !");
+				}else {
+					String time = " " + select_time.getSelectedItem().toString() + ":00";
+					String selectDate = date + time ;	
+					try {				
+						boolean control = teacher.addWhour(selectDate);
+						if(control) {
+							Helper.showMsg("success");
+							updateEtutModel();
+						}else {
+							Helper.showMsg("error");
+						}
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					
+				}					
+			}
+		});
+		btn_etutekle.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
+		btn_etutekle.setBounds(412, 10, 120, 30);
+		w_etutpane.add(btn_etutekle);
 		
-		JButton w_etutEkle = new JButton("Etüt Ekle");
-		w_etutEkle.setBounds(756, 10, 95, 39);
-		w_etutpane.add(w_etutEkle);
+		JScrollPane w_scrollPane = new JScrollPane();
+		w_scrollPane.setBounds(20, 50, 835, 363);
+		w_etutpane.add(w_scrollPane);
+		
+		table_etut = new JTable(etutModel);
+		table_etut.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
+		w_scrollPane.setViewportView(table_etut);
+		
 	}
-
+	public void updateEtutModel() throws SQLException{
+		DefaultTableModel clearModel = (DefaultTableModel) table_etut.getModel();
+		clearModel.setRowCount(0);
+		for(int i=0; i< teacher.getEtutList().size();i++) {
+			etutData[0] = teacher.getEtutList().get(i).getWdate();
+			etutModel.addRow(etutData);	
+			}}
+		
 }
