@@ -18,7 +18,7 @@ public class Helper {
 			msg = str;
 		}
 		
-		JOptionPane.showConfirmDialog(null, msg,"Mesaj",JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, msg,"Mesaj",JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public static boolean confirm(String str) {

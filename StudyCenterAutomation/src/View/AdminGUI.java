@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import Helper.*;
+import javax.swing.JComboBox;
 
 public class AdminGUI extends JFrame {
 	
@@ -54,6 +55,7 @@ public class AdminGUI extends JFrame {
 	private JTextField fld_lesson;
 	private DefaultTableModel lessonModel = null;
 	private Object[] lessonData = null;
+	private JTable table_TeacherLesson;
 
 	/**
 	 * Launch the application.
@@ -127,6 +129,15 @@ public class AdminGUI extends JFrame {
 					lessonData[1]= lesson.getList().get(i).getName();
 					lessonModel.addRow(lessonData);		
 					}
+				
+				DefaultTableModel teacherLModel = new DefaultTableModel();
+				Object[] colTeacher = new Object[2];
+				colTeacher[0] = "ID";
+				colTeacher[1] = "Ad Soyad";
+				teacherLModel.setColumnIdentifiers(colTeacher);
+				Object[] teacherData = new Object[2];
+				
+						
 
 		
 		
@@ -252,7 +263,7 @@ public class AdminGUI extends JFrame {
 		w_teacher.add(btn_tDelete);
 		
 		JScrollPane w_scrollTeacher = new JScrollPane();
-		w_scrollTeacher.setBounds(6, 6, 692, 379);
+		w_scrollTeacher.setBounds(10, 10, 692, 379);
 		w_teacher.add(w_scrollTeacher);
 		
 		table_teacher = new JTable(teacherModel);
@@ -479,9 +490,93 @@ public class AdminGUI extends JFrame {
 		w_lessons.add(btn_addLessons);
 		
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(522, 11, 351, 387);
-		w_lessons.add(scrollPane);
+		JScrollPane w_scrollTeacherLesson = new JScrollPane();
+		w_scrollTeacherLesson.setBounds(522, 11, 351, 387);
+		w_lessons.add(w_scrollTeacherLesson);
+		
+		table_TeacherLesson = new JTable(teacherLModel);
+		w_scrollTeacherLesson.setViewportView(table_TeacherLesson);
+		
+		JComboBox select_teacher = new JComboBox();
+		select_teacher.setBounds(380, 303, 117, 29);
+		for(int i=0 ; i < admin.getTeacherList().size(); i++) {
+			select_teacher.addItem(new Item(admin.getTeacherList().get(i).getUser_id(),admin.getTeacherList().get(i).getName()));
+		}
+		select_teacher.addActionListener(e -> {
+			JComboBox c = (JComboBox) e.getSource();
+			Item item = (Item) c.getSelectedItem();
+			System.out.println(item.getKey() + " " + item.getValue());
+		});
+		
+		w_lessons.add(select_teacher);
+		
+		JButton btn_addTeacher = new JButton("Ekle");
+		btn_addTeacher.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				int selRow = table_lessons.getSelectedRow();
+				if (selRow >= 0) {
+					String selLesson = table_lessons.getModel().getValueAt(selRow, 0).toString();
+					int selLessonID = Integer.parseInt(selLesson);
+					Item teacherItem = (Item) select_teacher.getSelectedItem();
+					try {
+						boolean control = admin.addLessonTo(teacherItem.getKey(), selLessonID);
+						if(control) {
+							Helper.showMsg("başarılı");
+						}
+						else {
+							Helper.showMsg("error");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}else {
+					Helper.showMsg("Lütfen bir ders seçin.");
+				}
+				
+			}
+			
+		});
+		btn_addTeacher.setBounds(380, 347, 117, 29);
+		w_lessons.add(btn_addTeacher);
+		
+		JLabel lblNewLabel_1_4_1 = new JLabel("Dersler");
+		lblNewLabel_1_4_1.setBounds(382, 165, 115, 16);
+		w_lessons.add(lblNewLabel_1_4_1);
+		
+		JButton btn_selectLesson = new JButton("Seç");
+		btn_selectLesson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int selRow =  table_lessons.getSelectedRow();
+				if (selRow>=0) {
+					String selLesson = table_lessons.getModel().getValueAt(selRow, 0).toString();
+					int selLessonID = Integer.parseInt(selLesson);
+					DefaultTableModel clearModel = (DefaultTableModel) table_TeacherLesson.getModel();
+					clearModel.setRowCount(0);
+					
+					try {
+						for (int i=0; i < admin.getLessonsTeacherList(selLessonID).size();i++) {
+							teacherData[0] = admin.getLessonsTeacherList(selLessonID).get(i).getUser_id();
+							teacherData[1] = admin.getLessonsTeacherList(selLessonID).get(i).getName();
+							teacherLModel.addRow(teacherData);
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					table_TeacherLesson.setModel(teacherLModel);
+				}else {
+					Helper.showMsg("Bir ders seçin.");
+				}
+				
+			}
+		});
+		btn_selectLesson.setBounds(380, 189, 117, 29);
+		w_lessons.add(btn_selectLesson);
 		
 		JPanel w_studentExam = new JPanel();
 		w_tab.addTab("Öğrenci Deneme Sınavı Yönetimi", null, w_studentExam, null);
@@ -513,6 +608,7 @@ public class AdminGUI extends JFrame {
 		}
 		
 	}
+	
 	public void updateLessonModel() throws SQLException{
 	DefaultTableModel clearModel = (DefaultTableModel) table_lessons.getModel();
 	clearModel.setRowCount(0);
@@ -521,6 +617,4 @@ public class AdminGUI extends JFrame {
 		lessonData[1]= lesson.getList().get(i).getName();
 		lessonModel.addRow(lessonData);		
 		}}
-	
-	
 }
