@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-
+import Model.Etut;
 import Helper.DBConnection;
 
 public class Teacher extends User {
@@ -47,18 +47,21 @@ public class Teacher extends User {
 		return list;
 	}
 
-	public ArrayList<Etut> getEtutList() throws SQLException {
+	public ArrayList<Etut> getEtutList(int teacher_id) throws SQLException {
 		ArrayList<Etut> list = new ArrayList<>();
 		Etut obj;
 		try {
 			st = con.createStatement();
-			rs = st.executeQuery("SELECT * FROM whour WHERE status='a'");
+			rs = st.executeQuery("SELECT * FROM whour WHERE status='a'  AND teacher_id = " + teacher_id);
 			while (rs.next()) {
-				obj = new Etut();
-				obj.setWdate(rs.getString("wdate"));
+				obj = new Etut(); 
+				obj.setId(rs.getInt("id"));
+				obj.setTeacher_id(rs.getInt("teacher_id"));
+				obj.setTeacher_name(rs.getString("teacher_name"));
 				obj.setStatus(rs.getString("status"));
-				
+				obj.setWdate(rs.getString("wdate"));
 				list.add(obj);
+		
 			}
 
 		} catch (SQLException e) {
@@ -67,25 +70,30 @@ public class Teacher extends User {
 
 		return list;
 	}
-	public boolean addWhour(String wdate) {
+	public boolean addWhour(int teacher_id, String teacher_name,String wdate) {
 
 		int key = 0;
 		int count =0;
-		String query = "INSERT INTO whour" + "(wdate) VALUES" + "(?)";
+		String query = "INSERT INTO whour" + "(teacher_id,teacher_name,wdate) VALUES" + "(?,?,?)";
 		try {
 			st = con.createStatement();
-			rs = st.executeQuery("SELECT * FROM whour WHERE status='a' AND wdate='" + wdate + "'");
+			rs = st.executeQuery("SELECT * FROM whour WHERE status='a' AND teacher_id ="+teacher_id+ " AND wdate ='"+wdate+"'");
+			
+			
 			while (rs.next()) {
 				count++;
 				break;
 			}
 			if(count == 0) {
 				preparedStatement = con.prepareStatement(query);
-				preparedStatement.setString(1, wdate);
+				preparedStatement.setInt(1, teacher_id);
+				preparedStatement.setString(2, teacher_name);
+				
+				preparedStatement.setString(3, wdate);
 				preparedStatement.executeUpdate();
 			}
 			key = 1;
-		} catch (Exception e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		if(key==1)
@@ -93,4 +101,26 @@ public class Teacher extends User {
 		else 
 			return false;
 	}
+	
+	public boolean deleteWhour(int id)throws SQLException {
+		String query = "DELETE FROM whour WHERE id = ?";
+		boolean key = false;
+		
+		try {
+			st= con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+			preparedStatement.setInt(1, id);
+			preparedStatement.executeUpdate();
+			key=true;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		if (key) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 }
+	

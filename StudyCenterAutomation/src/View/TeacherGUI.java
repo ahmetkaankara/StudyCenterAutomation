@@ -79,12 +79,14 @@ public class TeacherGUI extends JFrame {
 		}
 		
 		etutModel = new DefaultTableModel();
-		Object[] colEtutDate = new Object[1];
-		colEtutDate[0] = "Tarih";
+		Object[] colEtutDate = new Object[2];
+		colEtutDate[0] = "ID";
+		colEtutDate[1] = "Tarih";
 		etutModel.setColumnIdentifiers(colEtutDate);
-		etutData = new Object[1];
-		for(int i = 0; i<teacher.getEtutList().size();i++) {
-			etutData[0] = teacher.getEtutList().get(i).getWdate();
+		etutData = new Object[2];
+		for(int i = 0; i<teacher.getEtutList(teacher.getUser_id()).size();i++) {
+			etutData[0] = teacher.getEtutList(teacher.getUser_id()).get(i).getId();
+			etutData[1] = teacher.getEtutList(teacher.getUser_id()).get(i).getWdate();
 			etutModel.addRow(etutData);
 					
 		}
@@ -160,14 +162,14 @@ public class TeacherGUI extends JFrame {
 					String time = " " + select_time.getSelectedItem().toString() + ":00";
 					String selectDate = date + time ;	
 					try {				
-						boolean control = teacher.addWhour(selectDate);
+						boolean control = teacher.addWhour(teacher.getUser_id(),teacher.getName(),selectDate);
 						if(control) {
 							Helper.showMsg("success");
-							updateEtutModel();
+							updateEtutModel(teacher);
 						}else {
 							Helper.showMsg("error");
 						}
-					} catch (Exception e1) {
+					} catch (SQLException e1) {
 						e1.printStackTrace();
 					}
 					
@@ -175,7 +177,7 @@ public class TeacherGUI extends JFrame {
 			}
 		});
 		btn_etutekle.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
-		btn_etutekle.setBounds(412, 10, 120, 30);
+		btn_etutekle.setBounds(401, 10, 120, 30);
 		w_etutpane.add(btn_etutekle);
 		
 		JScrollPane w_scrollPane = new JScrollPane();
@@ -186,13 +188,44 @@ public class TeacherGUI extends JFrame {
 		table_etut.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
 		w_scrollPane.setViewportView(table_etut);
 		
+		JButton btn_sil = new JButton("Sil");
+		btn_sil.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selRow = table_etut.getSelectedRow();
+				if (selRow >=0 ) {
+					String selectRow = table_etut.getModel().getValueAt(selRow, 0).toString();
+					int selID = Integer.parseInt(selectRow);
+					boolean control;
+					try {
+						control = teacher.deleteWhour(selID);
+						if (control) {
+							Helper.showMsg("success");
+							updateEtutModel(teacher);
+						}else {
+							Helper.showMsg("error");
+						}
+					} catch (Exception e2) {
+						// TODO: handle exception
+					}
+				}else {
+					Helper.showMsg("Lütfen bir tarih seçiniz !");
+				}
+			}
+		});
+		btn_sil.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
+		btn_sil.setBounds(700, 10, 120, 30);
+		w_etutpane.add(btn_sil);
+		
 	}
-	public void updateEtutModel() throws SQLException{
+	public void updateEtutModel(Teacher teacher) throws SQLException{
 		DefaultTableModel clearModel = (DefaultTableModel) table_etut.getModel();
 		clearModel.setRowCount(0);
-		for(int i=0; i< teacher.getEtutList().size();i++) {
-			etutData[0] = teacher.getEtutList().get(i).getWdate();
-			etutModel.addRow(etutData);	
-			}}
-		
+		for(int i = 0; i<teacher.getEtutList(teacher.getUser_id()).size();i++) {
+			etutData[0] = teacher.getEtutList(teacher.getUser_id()).get(i).getId();
+			etutData[1] = teacher.getEtutList(teacher.getUser_id()).get(i).getWdate();
+			etutModel.addRow(etutData);
+					
+		}
+	}
 }
+

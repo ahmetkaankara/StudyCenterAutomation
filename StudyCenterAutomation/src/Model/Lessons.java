@@ -144,6 +144,35 @@ public class Lessons {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public ArrayList<User> getTeacherList(int lessons_id) throws SQLException{
+		ArrayList<User> list = new ArrayList<>();
+		User obj;
+		try {
+			Connection con = conn.connDb();
+
+			st = con.createStatement();
+			rs = st.executeQuery("SELECT u.user_id,u.tc_no,u.type,u.name,u.password FROM teacher t LEFT JOIN user u ON t.user_id	= u.user_id WHERE lessons_id = "+lessons_id);
+			while(rs.next()) {
+				obj = new User();
+				obj.setUser_id(rs.getInt("u.user_id"));
+				obj.setName(rs.getString("u.name"));
+				obj.setTc_no(rs.getString("u.tc_no"));
+				obj.setPassword(rs.getString("u.password"));
+				obj.setType(rs.getString("u.type"));
+				list.add(obj);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return list;
+		
+
+	}
+	
+	
+	
 
 	public Lessons(int lessons_id, String name) {
 		super();
