@@ -10,6 +10,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.plaf.basic.BasicOptionPaneUI.ButtonActionListener;
 import javax.swing.table.DefaultTableModel;
 
 import Model.*;
@@ -158,6 +159,15 @@ public class AdminGUI extends JFrame {
 		JButton btn_logout = new JButton("Çıkış Yap");
 		btn_logout.setBounds(777, 19, 117, 29);
 		w_pane.add(btn_logout);
+		btn_logout.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+			
+		}
+				);
 		
 		JTabbedPane w_tab = new JTabbedPane(JTabbedPane.TOP);
 		w_tab.setBounds(6, 79, 888, 437);

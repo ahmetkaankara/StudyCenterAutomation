@@ -111,6 +111,14 @@ public class TeacherGUI extends JFrame {
 		btnNewButton.setFont(new Font("Yu Gothic UI Semibold", Font.PLAIN, 13));
 		btnNewButton.setBounds(750, 25, 120, 30);
 		contentPane.add(btnNewButton);
+		btnNewButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+			
+		});
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(10, 60, 870, 450);
